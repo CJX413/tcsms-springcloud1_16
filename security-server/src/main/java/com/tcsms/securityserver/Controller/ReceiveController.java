@@ -4,7 +4,7 @@ package com.tcsms.securityserver.Controller;
 import com.google.gson.Gson;
 import com.tcsms.securityserver.Config.ConstantConfig;
 import com.tcsms.securityserver.Entity.OperationLog;
-import com.tcsms.securityserver.Service.ReceiveServiceImp.ReceiveServiceImp;
+import com.tcsms.securityserver.Service.ServiceImp.ReceiveServiceImp;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;

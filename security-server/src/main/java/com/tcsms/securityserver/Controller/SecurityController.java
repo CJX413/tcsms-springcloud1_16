@@ -2,7 +2,7 @@ package com.tcsms.securityserver.Controller;
 
 
 import com.tcsms.securityserver.Monitor.MonitorManager;
-import com.tcsms.securityserver.Service.ReceiveServiceImp.SecurityServiceImp;
+import com.tcsms.securityserver.Service.ServiceImp.SecurityServiceImp;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,13 +16,18 @@ public class SecurityController {
     SecurityServiceImp securityServiceImp;
 
 
-    @RequestMapping("/openSecuritySystem")
-    public void openSecuritySystem() {
-        securityServiceImp.openDeviceCollisionMonitor();
-    }
-    @RequestMapping("/closeSecuritySystem")
-    public void closeSecuritySystem(){
-        new MonitorManager().shutDownAllMonitor();
+    @RequestMapping("/securitySystemSwitch")
+    public String securitySystemSwitch() {
+        if (MonitorManager.turn_on) {
+            MonitorManager.shutDownAllMonitor();
+            MonitorManager.turn_on = false;
+            return "安全系统已关闭";
+        } else {
+            securityServiceImp.openDeviceCollisionMonitor();
+            securityServiceImp.openOtherMonitor();
+            MonitorManager.turn_on = true;
+            return "安全系统已开启";
+        }
     }
 
 }

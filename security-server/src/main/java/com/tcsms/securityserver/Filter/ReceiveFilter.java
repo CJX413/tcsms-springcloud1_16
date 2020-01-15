@@ -5,7 +5,7 @@ import com.google.gson.Gson;
 import com.tcsms.securityserver.Dao.DeviceRegistryDao;
 import com.tcsms.securityserver.Entity.DeviceRegistry;
 import com.tcsms.securityserver.Entity.OperationLog;
-import com.tcsms.securityserver.Service.ReceiveServiceImp.RedisServiceImp;
+import com.tcsms.securityserver.Service.ServiceImp.RedisServiceImp;
 import com.tcsms.securityserver.Utils.RequestReaderHttpServletRequestWrapper;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,15 +49,15 @@ public class ReceiveFilter implements Filter {
         System.out.println("--------------------->过滤器：请求地址" + requestURI);
         String json = getJson(requestWrapper);
         OperationLog operationLog = new Gson().fromJson(json, OperationLog.class);
-        String value = redisServiceImp.getRedis().get(operationLog.getDeviceID() + REGISTRY_KEY);
+        String value = redisServiceImp.getRedis().get(operationLog.getDeviceId() + REGISTRY_KEY);
         if (value == null) {
             DeviceRegistry deviceRegistry = new DeviceRegistry();
             deviceRegistry.setDeviceModel(operationLog.getDeviceModel());
             deviceRegistry.setIsRegistered(UN_REGISTERED);
-            deviceRegistry.setDeviceId(operationLog.getDeviceID());
+            deviceRegistry.setDeviceId(operationLog.getDeviceId());
             deviceRegistry.setLatitude(operationLog.getLatitude());
             deviceRegistry.setLongitude(operationLog.getLongitude());
-            redisServiceImp.getRedis().set(operationLog.getDeviceID() + REGISTRY_KEY, UN_REGISTERED);
+            redisServiceImp.getRedis().set(operationLog.getDeviceId() + REGISTRY_KEY, UN_REGISTERED);
             deviceRegistryDao.save(deviceRegistry);
         } else {
             if (value.equals(REGISTERED)) {

@@ -1,4 +1,4 @@
-package com.tcsms.securityserver.Service.ReceiveServiceImp;
+package com.tcsms.securityserver.Service.ServiceImp;
 
 import com.tcsms.securityserver.Dao.OperationLogDao;
 import com.tcsms.securityserver.Entity.OperationLog;
@@ -13,7 +13,7 @@ public class ReceiveServiceImp implements ReceiveService {
     @Autowired
     private RedisServiceImp redisServiceImp;
     public void receive(OperationLog operationLog) {
-        redisServiceImp.getRedis().set(operationLog.getDeviceID(), operationLog.toString());
+        redisServiceImp.getRedis().set(operationLog.getDeviceId(), operationLog.toString());
         //operationLogDao.save(operationLog);
     }
 }

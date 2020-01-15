@@ -2,6 +2,7 @@ package com.tcsms.securityserver.Entity;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Date;
 
 @Entity
 @Table(name = "operation_log")
@@ -38,6 +39,7 @@ public class OperationLog implements Serializable {
     private Double windVelocity;
     @Column(name = "magnification")//数据库字段名
     private int magnification;
+
     @Transient
     private Double bigHeight;
     @Transient
@@ -46,6 +48,10 @@ public class OperationLog implements Serializable {
     private Double bigLength;
     @Transient
     private Double smallLength;
+    @Transient
+    private Double rlt;
+    @Transient
+    private Date pauseDate;
 
     public String getDeviceModel() {
         return deviceModel;
@@ -55,11 +61,11 @@ public class OperationLog implements Serializable {
         this.deviceModel = deviceModel;
     }
 
-    public String getDeviceID() {
+    public String getDeviceId() {
         return deviceId;
     }
 
-    public void setDeviceID(String deviceID) {
+    public void setDeviceId(String deviceID) {
         this.deviceId = deviceID;
     }
 
@@ -200,6 +206,20 @@ public class OperationLog implements Serializable {
     public void setSmallLength(Double smallLength) {
         this.smallLength = smallLength;
     }
+    public Double getRlt() {
+        return rlt;
+    }
+
+    public void setRlt(Double rlt) {
+        this.rlt = rlt;
+    }
+    public Date getPauseDate() {
+        return pauseDate;
+    }
+
+    public void setPauseDate(Date pauseDate) {
+        this.pauseDate = pauseDate;
+    }
 
     public String toString() {
         return "{" +
@@ -216,11 +236,8 @@ public class OperationLog implements Serializable {
                 "\"torque\":" + torque + "," +
                 "\"weight\":" + weight + "," +
                 "\"windVelocity\":" + windVelocity + "," +
-                "\"magnification\":" + magnification + "," +
-                "\"bigHeight\":" + bigHeight + "," +
-                "\"smallHeight\":" + smallHeight + "," +
-                "\"bigLength\":" + bigLength + "," +
-                "\"smallLength\":" + smallLength +
+                "\"magnification\":" + magnification +
                 "}";
     }
+
 }
