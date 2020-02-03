@@ -10,6 +10,7 @@ import com.tcsms.securityserver.JSON.SendJSON;
 import com.tcsms.securityserver.Service.ServiceImp.RedisServiceImp;
 import com.tcsms.securityserver.Service.ServiceImp.RestTemplateServiceImp;
 import com.tcsms.securityserver.Utils.SpringUtil;
+import lombok.extern.log4j.Log4j2;
 import redis.clients.jedis.Jedis;
 
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import java.util.Map;
 
 import static com.tcsms.securityserver.Config.ConstantConfig.*;
 
+@Log4j2
 public class OtherMonitor extends TcsmsMonitor {
 
     private OperationLog device;
@@ -33,32 +35,32 @@ public class OtherMonitor extends TcsmsMonitor {
 
     @Override
     public void run() {
-        try {
-            redisServiceImp = SpringUtil.getBean(RedisServiceImp.class);
-            restTemplateService = SpringUtil.getBean(RestTemplateServiceImp.class);
-            Jedis jedis = redisServiceImp.getRedis();
-            Gson gson = new Gson();
-            List<WarningInfo> isWarning;
-            while (!Thread.interrupted()) {
-                device = gson.fromJson(jedis.get(device.getDeviceId()), OperationLog.class);
-                isWarning = isWarning();
-                if (!isWarning.isEmpty()) {
-                    for (WarningInfo warningInfo : isWarning) {
-                        sendWarning(warningInfo, getData());
+        synchronized (this) {
+            try {
+                redisServiceImp = SpringUtil.getBean(RedisServiceImp.class);
+                restTemplateService = SpringUtil.getBean(RestTemplateServiceImp.class);
+                Jedis jedis = redisServiceImp.getRedis();
+                Gson gson = new Gson();
+                List<WarningInfo> isWarning;
+                while (!Thread.interrupted()) {
+                    wait(this);
+                    log.info(device.getDeviceId() + "正在运行--------------");
+                    device = gson.fromJson(jedis.get(device.getDeviceId()), OperationLog.class);
+                    isWarning = isWarning();
+                    if (!isWarning.isEmpty()) {
+                        for (WarningInfo warningInfo : isWarning) {
+                            sendWarning(warningInfo, getData());
+                        }
                     }
+                    Thread.sleep(500);
                 }
-                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                JsonArray data = getData();
+                sendException(ExceptionInfo.OTHER_MONITOR_STOP, data);
+            } catch (SendWarningFailedException e) {
+                JsonArray data = getData();
+                sendException(ExceptionInfo.OTHER_MONITOR_SEND_WARNING, data);
             }
-        } catch (InterruptedException e) {
-            JsonArray data = getData();
-            SendJSON exception = new SendJSON(ExceptionInfo.OTHER_MONITOR_STOP.getCode(),
-                    ExceptionInfo.OTHER_MONITOR_STOP.getMsg(), data);
-            sendException(exception.toString());
-        } catch (SendWarningFailedException e) {
-            JsonArray data = getData();
-            SendJSON exception = new SendJSON(ExceptionInfo.OTHER_MONITOR_SEND_WARNING.getCode(),
-                    ExceptionInfo.OTHER_MONITOR_SEND_WARNING.getMsg(), data);
-            sendException(exception.toString());
         }
 
     }
@@ -66,14 +68,14 @@ public class OtherMonitor extends TcsmsMonitor {
     @Override
     public JsonArray getData() {
         JsonArray data = new JsonArray();
-        data.add(device.toString());
+        data.add(device.getJsonObject());
         return data;
     }
 
     @Override
     public List<WarningInfo> isWarning() {
         List<WarningInfo> warning = new ArrayList<>();
-        String name = operator.getOrDefault(device.getSpecialOperationCertificateNumber(), "");
+        String name = operator.getOrDefault(device.getWorkerId(), "");
         if (device.getTorque() / rlt > SAFE_TORQUE) {
             warning.add(WarningInfo.TORQUE_YELLOW_WARNING);
         }

@@ -2,7 +2,6 @@ package com.tcsms.securityserver.AOP;
 
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.tcsms.securityserver.Dao.OperationLogDao;
 import com.tcsms.securityserver.Entity.OperationLog;
@@ -16,19 +15,20 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-
 @Aspect
 @Component
 @Log4j2
-public class SendWarningAop {
+public class SendExceptionAop {
+    @Autowired
+    OperationLogDao operationLogDao;
 
-    @Pointcut("execution(* com.tcsms.securityserver.Service.ServiceImp.RestTemplateServiceImp.sendWarning(..))")
-    public void sendWarning() {
+    @Pointcut("execution(* com.tcsms.securityserver.Service.ServiceImp.RestTemplateServiceImp.sendException(..))")
+    public void sendException() {
     }
 
 
-    @Around(value = "sendWarning()")
-    public Object warningLog(ProceedingJoinPoint point) throws Throwable {
+    @Around(value = "sendException()")
+    public Object exceptionLog(ProceedingJoinPoint point) throws Throwable {
         SendJSON json = (SendJSON) point.proceed();
         JsonArray datas = (JsonArray) json.getData();
         datas.forEach(data -> {
@@ -37,5 +37,4 @@ public class SendWarningAop {
         });
         return point.proceed();
     }
-
 }

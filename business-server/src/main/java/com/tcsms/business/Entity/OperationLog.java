@@ -16,8 +16,8 @@ public class OperationLog implements Serializable {
     private String deviceId;
     @Column(name = "operator")//数据库字段名
     private String operator;
-    @Column(name = "specialOperationCertificateNumber")//数据库字段名
-    private String specialOperationCertificateNumber;
+    @Column(name = "workerId")//数据库字段名
+    private String workerId;
     @Column(name = "time")//数据库字段名
     private String time;
     @Column(name = "longitude")//数据库字段名
@@ -63,13 +63,6 @@ public class OperationLog implements Serializable {
         this.operator = operator;
     }
 
-    public String getSpecialOperationCertificateNumber() {
-        return specialOperationCertificateNumber;
-    }
-
-    public void setSpecialOperationCertificateNumber(String specialOperationCertificateNumber) {
-        this.specialOperationCertificateNumber = specialOperationCertificateNumber;
-    }
 
     public Double getLongitude() {
         return longitude;
@@ -119,6 +112,13 @@ public class OperationLog implements Serializable {
         this.torque = torque;
     }
 
+    public String getWorkerId() {
+        return workerId;
+    }
+
+    public void setWorkerId(String workerId) {
+        this.workerId = workerId;
+    }
 
     public String getTime() {
         return time;
@@ -165,7 +165,7 @@ public class OperationLog implements Serializable {
                 "\"deviceModel\":" + "\"" + deviceModel + "\"" + "," +
                 "\"deviceId\":" + "\"" + deviceId + "\"" + "," +
                 "\"operator\":" + "\"" + operator + "\"" + "," +
-                "\"specialOperationCertificateNumber\":" + "\"" + specialOperationCertificateNumber + "\"" + "," +
+                "\"workerId\":" + "\"" + workerId + "\"" + "," +
                 "\"time\":" + "\"" + time + "\"" + "," +
                 "\"longitude\":" + longitude + "," +
                 "\"latitude\":" + latitude + "," +

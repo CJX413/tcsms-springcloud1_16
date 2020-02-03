@@ -18,6 +18,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -27,13 +28,13 @@ import java.util.Collection;
  */
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
-    private ThreadLocal<Integer> rememberMe = new ThreadLocal<>();
+    private ThreadLocal<Boolean> rememberMe = new ThreadLocal<>();
     private AuthenticationManager authenticationManager;
 
     public JWTAuthenticationFilter(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
         //自定义登录url
-        //super.setFilterProcessesUrl("/auth/login");
+        super.setFilterProcessesUrl("/auth/login");
     }
 
     @Override
@@ -63,7 +64,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         JwtUser jwtUser = (JwtUser) authResult.getPrincipal();
 
-        boolean isRemember = rememberMe.get() == 1;
+        boolean isRemember = rememberMe.get();
 
         String role = "";
         Collection<? extends GrantedAuthority> authorities = jwtUser.getAuthorities();
@@ -77,7 +78,6 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         // 但是这里创建的token只是单纯的token
         // 按照jwt的规定，最后请求的时候应该是 `Bearer token`
 //        response.setHeader("token", JwtTokenUtils.TOKEN_PREFIX + token);
-//        response.sendRedirect(request.getHeader("Referer")+"?token="+token);
         LoginJSON json=new LoginJSON();
         json.setCode(200);
         json.setSuccess(true);
@@ -88,11 +88,17 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
-        //response.getWriter().write("authentication failed, reason: " + failed.getMessage());
         LoginJSON json=new LoginJSON();
-        json.setCode(404);
-        json.setSuccess(false);
-        json.setMassege("Login failed");
+        if(failed.getMessage()!=null){
+            json.setCode(404);
+            json.setSuccess(false);
+            json.setMassege(failed.getMessage());
+        }else {
+            json.setCode(404);
+            json.setSuccess(false);
+            json.setMassege("用户不存在");
+        }
+
         response.getWriter().write(json.toString());
     }
 }

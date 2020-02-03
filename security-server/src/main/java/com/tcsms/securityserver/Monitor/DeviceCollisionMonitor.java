@@ -74,8 +74,8 @@ public class DeviceCollisionMonitor extends TcsmsMonitor {
     @Override
     public JsonArray getData() {
         JsonArray data = new JsonArray();
-        data.add(device_1.toString());
-        data.add(device_2.toString());
+        data.add(device_1.getJsonObject());
+        data.add(device_2.getJsonObject());
         return data;
     }
 
@@ -116,34 +116,33 @@ public class DeviceCollisionMonitor extends TcsmsMonitor {
 
     @Override
     public void run() {
-        try {
-            redisServiceImp = SpringUtil.getBean(RedisServiceImp.class);
-            restTemplateService = SpringUtil.getBean(RestTemplateServiceImp.class);
-            Jedis jedis = redisServiceImp.getRedis();
-            Gson gson = new Gson();
-            List<WarningInfo> isWarning;
-            while (!Thread.interrupted()) {
-                device_1 = gson.fromJson(jedis.get(device_1.getDeviceId()), OperationLog.class);
-                device_2 = gson.fromJson(jedis.get(device_2.getDeviceId()), OperationLog.class);
-                isWarning = isWarning();
-                if (!isWarning.isEmpty()) {
-                    for (WarningInfo warningInfo : isWarning) {
-                        sendWarning(warningInfo, getData());
+        synchronized (this) {
+            try {
+                redisServiceImp = SpringUtil.getBean(RedisServiceImp.class);
+                restTemplateService = SpringUtil.getBean(RestTemplateServiceImp.class);
+                Jedis jedis = redisServiceImp.getRedis();
+                Gson gson = new Gson();
+                List<WarningInfo> isWarning;
+                while (!Thread.interrupted()) {
+                    wait(this);
+                    log.info(device_1.getDeviceId() + device_2.getDeviceId() + "正在运行--------------");
+                    device_1 = gson.fromJson(jedis.get(device_1.getDeviceId()), OperationLog.class);
+                    device_2 = gson.fromJson(jedis.get(device_2.getDeviceId()), OperationLog.class);
+                    isWarning = isWarning();
+                    if (!isWarning.isEmpty()) {
+                        for (WarningInfo warningInfo : isWarning) {
+                            sendWarning(warningInfo, getData());
+                        }
                     }
+                    Thread.sleep(500);
                 }
-                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                JsonArray data = getData();
+                sendException(ExceptionInfo.DEVICE_COLLISION_MONITOR_STOP, data);
+            } catch (SendWarningFailedException e) {
+                JsonArray data = getData();
+                sendException(ExceptionInfo.DEVICE_COLLISION_MONITOR_SEND_WARNING, data);
             }
-        } catch (InterruptedException e) {
-            JsonArray data = getData();
-            SendJSON exception = new SendJSON(ExceptionInfo.DEVICE_COLLISION_MONITOR_STOP.getCode(),
-                    ExceptionInfo.DEVICE_COLLISION_MONITOR_STOP.getMsg(), data);
-            restTemplateService.sendJson(ERROE_RECEIVE_URL, exception.toString());
-        } catch (SendWarningFailedException e) {
-            JsonArray data = getData();
-            SendJSON exception = new SendJSON(ExceptionInfo.DEVICE_COLLISION_MONITOR_SEND_WARNING.getCode(),
-                    ExceptionInfo.DEVICE_COLLISION_MONITOR_SEND_WARNING.getMsg(), data);
-            restTemplateService.sendJson(ERROE_RECEIVE_URL, exception.toString());
         }
     }
-
 }

@@ -7,14 +7,15 @@ import org.springframework.web.bind.annotation.*;
  * Created by echisan on 2018/6/23
  */
 @RestController
+@RequestMapping("/tasks")
 public class TaskController {
 
-    @RequestMapping("/tasks")
+    @RequestMapping
     public String listTasks(){
         return "任务列表";
     }
 
-    @PostMapping
+    @PostMapping("/add")
     @PreAuthorize("hasRole('ADMIN')")
     public String newTasks(){
         return "创建了一个新的任务";

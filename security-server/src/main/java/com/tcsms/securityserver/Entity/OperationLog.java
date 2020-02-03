@@ -1,5 +1,8 @@
 package com.tcsms.securityserver.Entity;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
@@ -17,8 +20,8 @@ public class OperationLog implements Serializable {
     private String deviceId;
     @Column(name = "operator")//数据库字段名
     private String operator;
-    @Column(name = "specialOperationCertificateNumber")//数据库字段名
-    private String specialOperationCertificateNumber;
+    @Column(name = "workerId")//数据库字段名
+    private String workerId;
     @Column(name = "time")//数据库字段名
     private String time;
     @Column(name = "longitude")//数据库字段名
@@ -77,13 +80,6 @@ public class OperationLog implements Serializable {
         this.operator = operator;
     }
 
-    public String getSpecialOperationCertificateNumber() {
-        return specialOperationCertificateNumber;
-    }
-
-    public void setSpecialOperationCertificateNumber(String specialOperationCertificateNumber) {
-        this.specialOperationCertificateNumber = specialOperationCertificateNumber;
-    }
 
     public Double getLongitude() {
         return longitude;
@@ -174,6 +170,13 @@ public class OperationLog implements Serializable {
         this.id = id;
     }
 
+    public String getWorkerId() {
+        return workerId;
+    }
+
+    public void setWorkerId(String workerId) {
+        this.workerId = workerId;
+    }
 
     public Double getBigHeight() {
         return bigHeight;
@@ -206,6 +209,7 @@ public class OperationLog implements Serializable {
     public void setSmallLength(Double smallLength) {
         this.smallLength = smallLength;
     }
+
     public Double getRlt() {
         return rlt;
     }
@@ -213,6 +217,7 @@ public class OperationLog implements Serializable {
     public void setRlt(Double rlt) {
         this.rlt = rlt;
     }
+
     public Date getPauseDate() {
         return pauseDate;
     }
@@ -226,7 +231,7 @@ public class OperationLog implements Serializable {
                 "\"deviceModel\":" + "\"" + deviceModel + "\"" + "," +
                 "\"deviceId\":" + "\"" + deviceId + "\"" + "," +
                 "\"operator\":" + "\"" + operator + "\"" + "," +
-                "\"specialOperationCertificateNumber\":" + "\"" + specialOperationCertificateNumber + "\"" + "," +
+                "\"workerId\":" + "\"" + workerId + "\"" + "," +
                 "\"time\":" + "\"" + time + "\"" + "," +
                 "\"longitude\":" + longitude + "," +
                 "\"latitude\":" + latitude + "," +
@@ -240,4 +245,7 @@ public class OperationLog implements Serializable {
                 "}";
     }
 
+    public JsonObject getJsonObject() {
+        return new JsonParser().parse(toString()).getAsJsonObject();
+    }
 }

@@ -23,11 +23,17 @@ public class SecurityController {
             MonitorManager.turn_on = false;
             return "安全系统已关闭";
         } else {
+            securityServiceImp.openManagerMonitor();
             securityServiceImp.openDeviceCollisionMonitor();
             securityServiceImp.openOtherMonitor();
             MonitorManager.turn_on = true;
             return "安全系统已开启";
         }
+    }
+    @RequestMapping("/notifyMonitor")
+    public String notifyMonitor(){
+        MonitorManager.notifyAllMonitor();
+        return "唤醒所有监听器";
     }
 
 }

@@ -53,9 +53,9 @@ public class LoginJSON {
     public String toString() {
         return "{" +
                 "\"code\":" + code +
-                ", \"token\":" + "\"" + token + "\"" +
+                ",\"token\":" + "\"" + token + "\"" +
                 ", \"success\":" + success +
-                ", \"massege\":" + "\'" + message + "\'" +
+                ", \"message\":" + "\"" + message + "\"" +
                 "}";
     }
 }

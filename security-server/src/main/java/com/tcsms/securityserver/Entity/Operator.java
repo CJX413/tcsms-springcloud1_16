@@ -14,6 +14,8 @@ public class Operator {
     private String specialOperationCertificateNumber;
     @Column(name = "name")
     private String name;
+    @Column(name = "workerId")
+    private String workerId;
 
     public String getUsername() {
         return username;
@@ -39,6 +41,14 @@ public class Operator {
         this.name = name;
     }
 
+    public String getWorkerId() {
+        return workerId;
+    }
+
+    public void setWorkerId(String workerId) {
+        this.workerId = workerId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -53,4 +63,5 @@ public class Operator {
     public int hashCode() {
         return Objects.hash(username, specialOperationCertificateNumber, name);
     }
+
 }

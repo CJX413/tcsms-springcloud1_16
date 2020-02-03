@@ -1,5 +1,9 @@
 package com.tcsms.business.Entity;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
@@ -139,5 +143,22 @@ public class DeviceRegistry implements Serializable{
     @Override
     public int hashCode() {
         return Objects.hash(isRegistered, deviceModel, deviceId, longitude, latitude, rlt, bigHeight, smallHeight, bigLength, smallLength);
+    }
+    public String toString() {
+        return "{" +
+                "\"deviceId\":" + "\"" + deviceId + "\"" + "," +
+                "\"isRegistered\":" + "\"" + isRegistered + "\"" + "," +
+                "\"deviceModel\":" + "\"" + deviceModel + "\"" + "," +
+                "\"longitude\":" + longitude + "," +
+                "\"latitude\":" + latitude + "," +
+                "\"rlt\":" + rlt + "," +
+                "\"bigHeight\":" + bigHeight + "," +
+                "\"latitude\":" + smallHeight + "," +
+                "\"latitude\":" + bigLength + "," +
+                "\"latitude\":" + smallLength +
+                "}";
+    }
+    public JsonObject getJsonObject() {
+        return new JsonParser().parse(toString()).getAsJsonObject();
     }
 }

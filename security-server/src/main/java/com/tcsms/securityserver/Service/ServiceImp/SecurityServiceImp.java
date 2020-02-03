@@ -5,6 +5,7 @@ import com.tcsms.securityserver.Dao.OperatorDao;
 import com.tcsms.securityserver.Entity.DeviceRegistry;
 import com.tcsms.securityserver.Entity.OperationLog;
 import com.tcsms.securityserver.Monitor.DeviceCollisionMonitor;
+import com.tcsms.securityserver.Monitor.ManagerMonitor;
 import com.tcsms.securityserver.Monitor.MonitorManager;
 import com.tcsms.securityserver.Monitor.OtherMonitor;
 import com.tcsms.securityserver.Service.SecurityService;
@@ -18,7 +19,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.tcsms.securityserver.Config.ConstantConfig.*;
+import static com.tcsms.securityserver.Config.ConstantConfig.MANAGER_MONITOR_THREAD;
+import static com.tcsms.securityserver.Config.ConstantConfig.REGISTERED;
 
 @Log4j2
 @Service
@@ -42,14 +44,12 @@ public class SecurityServiceImp implements SecurityService {
         }
         for (int i = 0; i < operationLogList.size(); i++) {
             for (int j = i + 1; j < operationLogList.size(); j++) {
-                String threadName = DeviceCollisionMonitor_THREAD_PREFIX +
-                        operationLogList.get(i).getDeviceId() + operationLogList.get(j).getDeviceId();
+                String threadName = operationLogList.get(i).getDeviceId() + operationLogList.get(j).getDeviceId();
                 DeviceCollisionMonitor monitor = new DeviceCollisionMonitor(operationLogList.get(i),
                         operationLogList.get(j), threadName);
                 if (!monitor.isCompleteSafe()) {
-                    Thread thread = new Thread(monitor, monitor.getThreadName());
-                    thread.start();
-                    MonitorManager.addMonitor(thread);
+                    monitor.start();
+                    MonitorManager.addMonitor(monitor);
                 }
             }
         }
@@ -64,17 +64,24 @@ public class SecurityServiceImp implements SecurityService {
                 operationLogList.add(operationLog);
             }
         }
-        Map<String,String> operatorMap=new HashMap<>();
+        Map<String, String> operatorMap = new HashMap<>();
         operatorDao.findAll().forEach(operator -> {
-            operatorMap.put(operator.getSpecialOperationCertificateNumber(),operator.getName());
+            operatorMap.put(operator.getWorkerId(), operator.getName());
         });
         operationLogList.forEach(operationLog -> {
-                    String threadName = OtherMonitor_THREAD_PREFIX + operationLog.getDeviceId();
-                    Thread thread = new Thread(new OtherMonitor(operationLog, operatorMap, threadName), threadName);
-                    thread.start();
-                    MonitorManager.addMonitor(thread);
+                    String threadName = operationLog.getDeviceId();
+                    OtherMonitor monitor = new OtherMonitor(operationLog, operatorMap, threadName);
+                    monitor.start();
+                    MonitorManager.addMonitor(monitor);
                 }
         );
+    }
+
+    public void openManagerMonitor() {
+        List<DeviceRegistry> deviceList = deviceRegistryDao.findByIsRegistered(REGISTERED);
+        ManagerMonitor monitor = new ManagerMonitor(deviceList, MANAGER_MONITOR_THREAD);
+        monitor.start();
+        MonitorManager.addMonitor(monitor);
     }
 
 

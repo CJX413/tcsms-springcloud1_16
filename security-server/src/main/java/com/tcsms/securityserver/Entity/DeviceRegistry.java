@@ -1,5 +1,8 @@
 package com.tcsms.securityserver.Entity;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -9,7 +12,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "device_registry")
-public class DeviceRegistry implements Serializable{
+public class DeviceRegistry implements Serializable {
     @Id
     @Column(name = "deviceId")
     private String deviceId;
@@ -142,5 +145,23 @@ public class DeviceRegistry implements Serializable{
     @Override
     public int hashCode() {
         return Objects.hash(isRegistered, deviceModel, deviceId, longitude, latitude, rlt, bigHeight, smallHeight, bigLength, smallLength);
+    }
+
+    public String toString() {
+        return "{" +
+                "\"deviceId\":" + "\"" + deviceId + "\"" + "," +
+                "\"isRegistered\":" + "\"" + isRegistered + "\"" + "," +
+                "\"deviceModel\":" + "\"" + deviceModel + "\"" + "," +
+                "\"longitude\":" + longitude + "," +
+                "\"latitude\":" + latitude + "," +
+                "\"rlt\":" + rlt + "," +
+                "\"bigHeight\":" + bigHeight + "," +
+                "\"latitude\":" + smallHeight + "," +
+                "\"latitude\":" + bigLength + "," +
+                "\"latitude\":" + smallLength +
+                "}";
+    }
+    public JsonObject getJsonObject() {
+        return new JsonParser().parse(toString()).getAsJsonObject();
     }
 }
